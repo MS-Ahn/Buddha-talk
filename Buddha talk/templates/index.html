@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="부처님과 대화하며 마음의 평화를 찾으세요. AI 기반 불교 상담 채팅 서비스">
+    <meta name="keywords" content="부처님, 명상, 상담, AI, 불교, 힐링, 마음챙김">
+    <title>부처님과의 대화 - Buddha Talk</title>
+
+    <!-- 폰트 -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@300;400;500;600;700&family=Noto+Sans+KR:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- 스타일시트 -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <!-- 헤더 -->
+        <header class="header">
+            <div class="header-content">
+                <div class="buddha-avatar">
+                    <div class="buddha-character">
+                        <div class="buddha-face">
+                            <div class="eyes">
+                                <div class="eye left-eye"></div>
+                                <div class="eye right-eye"></div>
+                            </div>
+                            <div class="smile"></div>
+                        </div>
+                        <div class="buddha-body"></div>
+                    </div>
+                </div>
+                <div class="header-text">
+                    <h1>부처님과의 대화</h1>
+                    <p id="dailyQuote">고민과 어려움을 함께 나누어 보세요</p>
+                </div>
+            </div>
+        </header>
+
+        <!-- 프라이버시 동의 배너 -->
+        <div id="consentBanner" class="consent-banner" style="display: none;">
+            <p><strong>🔒 데이터 수집 동의</strong></p>
+            <p style="font-size: 0.85rem;">
+                Buddha Talk은 서비스 개선을 위해 대화 내용을 익명으로 수집할 수 있습니다.
+                개인정보는 암호화되어 안전하게 보호되며, 언제든지 철회 가능합니다.
+            </p>
+            <div class="consent-buttons">
+                <button id="acceptConsent" class="btn-accept">동의합니다</button>
+                <button id="declineConsent" class="btn-decline">거부합니다</button>
+            </div>
+        </div>
+
+        <!-- API 설정 모달 -->
+        <div id="apiModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>🔑 API 키 설정</h2>
+                    <span class="close">&times;</span>
+                </div>
+                <div class="modal-body">
+                    <p>부처님과 대화하려면 OpenAI API 키가 필요합니다.</p>
+                    <input type="password" id="apiKey" placeholder="sk-...로 시작하는 API 키를 입력하세요" autocomplete="off">
+                    <button id="saveApiKey">저장</button>
+                    <div class="api-info">
+                        <strong>API 키 얻는 방법:</strong>
+                        <ol>
+                            <li><a href="https://platform.openai.com/signup" target="_blank" rel="noopener">OpenAI 웹사이트</a>에서 계정 생성</li>
+                            <li>API Keys 메뉴에서 새로운 키 생성</li>
+                            <li>생성된 키를 복사하여 위에 입력</li>
+                        </ol>
+                        <p style="margin-top: 1rem; font-size: 0.8rem; color: #999;">
+                            💡 API 키는 안전하게 저장되며, 브라우저를 닫으면 삭제됩니다.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 채팅 영역 -->
+        <main class="chat-container">
+            <!-- 대시보드 (세션 요약 및 명상 추천) -->
+            <div id="dashboard" class="dashboard" style="display: none;">
+                <div class="dashboard-title">🧘‍♂️ 오늘의 대화 요약</div>
+                <!-- JavaScript로 동적 생성 -->
+            </div>
+
+            <!-- 채팅 메시지 -->
+            <div class="chat-messages" id="chatMessages">
+                <div class="message buddha-message">
+                    <div class="message-avatar">
+                        <div class="mini-buddha">🙏</div>
+                    </div>
+                    <div class="message-content">
+                        <p>안녕하세요, 제자여. 무엇이 마음을 무겁게 하고 있나요? 저와 함께 이야기해 보세요.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 채팅 입력 -->
+            <div class="chat-input-container">
+                <div class="chat-input-wrapper">
+                    <input
+                        type="text"
+                        id="messageInput"
+                        placeholder="부처님께 말씀드리고 싶은 것이 있다면..."
+                        maxlength="500"
+                        aria-label="메시지 입력"
+                    >
+                    <button id="sendButton" aria-label="메시지 전송">
+                        <span>전송</span>
+                        <div class="send-icon">➤</div>
+                    </button>
+                </div>
+                <div class="input-footer">
+                    <span class="char-count">0/500</span>
+                    <button
+                        onclick="getSessionSummary()"
+                        style="padding: 0.5rem 1rem; background: var(--peace-green); border: none; border-radius: 8px; cursor: pointer; font-size: 0.85rem; color: var(--text-primary); font-weight: 600;"
+                        title="대화 요약 보기"
+                    >
+                        📊 요약
+                    </button>
+                </div>
+            </div>
+        </main>
+
+        <!-- 로딩 인디케이터 -->
+        <div id="loadingIndicator" class="loading-indicator">
+            <div class="buddha-thinking">
+                <div class="thinking-dots">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+                <p>부처님이 깊이 생각하고 계십니다...</p>
+            </div>
+        </div>
+
+        <!-- 푸터 (선택적) -->
+        <footer style="padding: 1rem; text-align: center; font-size: 0.85rem; color: var(--text-secondary); border-top: 1px solid #E0E0E0;">
+            <p style="margin: 0;">
+                모든 고통은 마음에서 나오고, 모든 평화도 마음에서 나온다
+            </p>
+            <p style="margin: 0.5rem 0 0 0; font-size: 0.75rem; color: var(--text-light);">
+                Buddha Talk © 2024 |
+                <a href="#" style="color: var(--buddha-gold); text-decoration: none;">개인정보처리방침</a>
+            </p>
+        </footer>
+    </div>
+
+    <!-- JavaScript -->
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+</html>

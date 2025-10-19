@@ -1,0 +1,13 @@
+{
+  "name": "buddha-talk",
+  "version": "1.0.0",
+  "description": "부처님과 대화하는 채팅 서비스",
+  "main": "app.py",
+  "scripts": {
+    "start": "python app.py",
+    "dev": "python app.py"
+  },
+  "keywords": ["buddha", "chat", "counseling", "meditation"],
+  "author": "Buddha Talk Team",
+  "license": "MIT"
+}
