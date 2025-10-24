@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <!-- 배경 원 -->
+  <circle cx="256" cx="256" r="256" fill="#D4AF37"/>
+
+  <!-- 부처님 얼굴 -->
+  <circle cx="256" cy="220" r="120" fill="#F5DEB3"/>
+
+  <!-- 눈 -->
+  <circle cx="226" cy="210" r="8" fill="#333"/>
+  <circle cx="286" cy="210" r="8" fill="#333"/>
+
+  <!-- 미소 -->
+  <path d="M 226 240 Q 256 260 286 240" stroke="#333" stroke-width="4" fill="none" stroke-linecap="round"/>
+
+  <!-- 머리 (둥근 모양) -->
+  <ellipse cx="256" cy="140" rx="100" ry="40" fill="#8B4513"/>
+
+  <!-- 몸 (간단한 삼각형) -->
+  <path d="M 256 340 L 180 460 L 332 460 Z" fill="#FF8C00"/>
+
+  <!-- 손 모양 (합장) -->
+  <ellipse cx="256" cy="380" rx="30" ry="50" fill="#F5DEB3"/>
+
+  <!-- 후광 -->
+  <circle cx="256" cy="140" r="140" fill="none" stroke="#FFD700" stroke-width="8" opacity="0.5"/>
+</svg>

@@ -7,6 +7,27 @@
     <meta name="keywords" content="부처님, 명상, 상담, AI, 불교, 힐링, 마음챙김">
     <title>부처님과의 대화 - Buddha Talk</title>
 
+    <!-- PWA 메타 태그 -->
+    <meta name="theme-color" content="#D4AF37">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="Buddha Talk">
+    <meta name="mobile-web-app-capable" content="yes">
+
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}">
+
+    <!-- 파비콘 및 앱 아이콘 -->
+    <link rel="icon" type="image/png" sizes="32x32" href="{{ url_for('static', filename='icons/icon-152x152.png') }}">
+    <link rel="apple-touch-icon" sizes="72x72" href="{{ url_for('static', filename='icons/icon-72x72.png') }}">
+    <link rel="apple-touch-icon" sizes="96x96" href="{{ url_for('static', filename='icons/icon-96x96.png') }}">
+    <link rel="apple-touch-icon" sizes="128x128" href="{{ url_for('static', filename='icons/icon-128x128.png') }}">
+    <link rel="apple-touch-icon" sizes="144x144" href="{{ url_for('static', filename='icons/icon-144x144.png') }}">
+    <link rel="apple-touch-icon" sizes="152x152" href="{{ url_for('static', filename='icons/icon-152x152.png') }}">
+    <link rel="apple-touch-icon" sizes="192x192" href="{{ url_for('static', filename='icons/icon-192x192.png') }}">
+    <link rel="apple-touch-icon" sizes="384x384" href="{{ url_for('static', filename='icons/icon-384x384.png') }}">
+    <link rel="apple-touch-icon" sizes="512x512" href="{{ url_for('static', filename='icons/icon-512x512.png') }}">
+
     <!-- 폰트 -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -150,7 +171,32 @@
         </footer>
     </div>
 
+    <!-- 명상 음악 플레이어 -->
+    <button id="musicToggle" class="music-toggle" title="명상 음악">🎵</button>
+
+    <div id="musicPanel" class="music-panel">
+        <div class="music-header">
+            <h3>🎵 명상 음악</h3>
+        </div>
+        <div class="track-info">
+            <div id="currentTrackName" class="track-name">평온한 사찰</div>
+        </div>
+        <div class="player-controls">
+            <button id="prevTrack" class="control-btn" title="이전 곡">⏮</button>
+            <button id="musicPlayBtn" class="control-btn play-btn" title="재생">▶</button>
+            <button id="nextTrack" class="control-btn" title="다음 곡">⏭</button>
+        </div>
+        <div class="volume-control">
+            <div class="volume-label">
+                <span>🔊 음량</span>
+                <span id="volumeValue">30%</span>
+            </div>
+            <input type="range" id="volumeSlider" class="volume-slider" min="0" max="100" value="30">
+        </div>
+    </div>
+
     <!-- JavaScript -->
     <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/music-player.js') }}"></script>
 </body>
 </html>

@@ -53,7 +53,7 @@ def setup_api():
 
         # 간단한 테스트 요청
         response = openai_client.chat.completions.create(
-            model="gpt-3.5-turbo",
+            model="gpt-4o",
             messages=[{"role": "user", "content": "안녕"}],
             max_tokens=10
         )
@@ -125,9 +125,9 @@ def chat():
 
         # OpenAI API 호출
         response = openai_client.chat.completions.create(
-            model="gpt-3.5-turbo",
+            model="gpt-4o",
             messages=messages,
-            max_tokens=600,
+            max_tokens=800,
             temperature=0.8,
             presence_penalty=0.6,
             frequency_penalty=0.3
@@ -188,9 +188,9 @@ def chat_stream():
 
             # 스트리밍 응답
             stream = openai_client.chat.completions.create(
-                model="gpt-3.5-turbo",
+                model="gpt-4o",
                 messages=messages,
-                max_tokens=600,
+                max_tokens=800,
                 temperature=0.8,
                 stream=True
             )

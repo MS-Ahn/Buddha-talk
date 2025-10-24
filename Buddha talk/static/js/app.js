@@ -390,6 +390,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // 일일 명상 로드
     loadDailyMeditation();
+
+    // PWA Service Worker 등록
+    registerServiceWorker();
+
+    // PWA 설치 프롬프트 처리
+    handlePWAInstall();
 });
 
 // 일일 명상 가이드 로드
@@ -435,3 +441,203 @@ async function getSessionSummary() {
 
 // 전역 함수로 노출 (HTML에서 호출 가능)
 window.getSessionSummary = getSessionSummary;
+
+// ========================================
+// PWA 기능
+// ========================================
+
+/**
+ * Service Worker 등록
+ */
+async function registerServiceWorker() {
+    if ('serviceWorker' in navigator) {
+        try {
+            const registration = await navigator.serviceWorker.register('/static/service-worker.js', {
+                scope: '/'
+            });
+
+            console.log('[PWA] Service Worker 등록 성공:', registration.scope);
+
+            // 업데이트 확인
+            registration.addEventListener('updatefound', () => {
+                const newWorker = registration.installing;
+                console.log('[PWA] 새로운 Service Worker 발견');
+
+                newWorker.addEventListener('statechange', () => {
+                    if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                        // 새 버전 사용 가능
+                        showUpdateNotification();
+                    }
+                });
+            });
+        } catch (error) {
+            console.error('[PWA] Service Worker 등록 실패:', error);
+        }
+    } else {
+        console.log('[PWA] Service Worker를 지원하지 않는 브라우저입니다.');
+    }
+}
+
+/**
+ * 앱 업데이트 알림 표시
+ */
+function showUpdateNotification() {
+    const notification = document.createElement('div');
+    notification.className = 'update-notification';
+    notification.innerHTML = `
+        <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 1rem; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); display: flex; justify-content: space-between; align-items: center; margin: 1rem;">
+            <span>✨ 새로운 버전이 있습니다!</span>
+            <button onclick="window.location.reload()" style="background: white; color: #667eea; border: none; padding: 0.5rem 1rem; border-radius: 8px; cursor: pointer; font-weight: 600;">
+                새로고침
+            </button>
+        </div>
+    `;
+    document.body.insertBefore(notification, document.body.firstChild);
+}
+
+/**
+ * PWA 설치 프롬프트 처리
+ */
+let deferredPrompt = null;
+
+function handlePWAInstall() {
+    // beforeinstallprompt 이벤트 캡처
+    window.addEventListener('beforeinstallprompt', (e) => {
+        console.log('[PWA] 설치 프롬프트 준비됨');
+        e.preventDefault();
+        deferredPrompt = e;
+
+        // 설치 버튼 표시
+        showInstallButton();
+    });
+
+    // 설치 완료 이벤트
+    window.addEventListener('appinstalled', () => {
+        console.log('[PWA] 앱이 설치되었습니다!');
+        deferredPrompt = null;
+        hideInstallButton();
+
+        // 설치 감사 메시지
+        if (window.buddhaChat) {
+            window.buddhaChat.addSystemMessage('🙏 Buddha Talk 앱이 설치되었습니다! 이제 언제든지 부처님과 대화할 수 있습니다.');
+        }
+    });
+}
+
+/**
+ * PWA 설치 버튼 표시
+ */
+function showInstallButton() {
+    // 이미 설치 버튼이 있으면 무시
+    if (document.getElementById('pwaInstallButton')) {
+        return;
+    }
+
+    const installBtn = document.createElement('button');
+    installBtn.id = 'pwaInstallButton';
+    installBtn.className = 'pwa-install-button';
+    installBtn.innerHTML = '📱 앱으로 설치';
+    installBtn.style.cssText = `
+        position: fixed;
+        bottom: 80px;
+        right: 20px;
+        background: linear-gradient(135deg, #D4AF37 0%, #FFD700 100%);
+        color: white;
+        border: none;
+        padding: 1rem 1.5rem;
+        border-radius: 50px;
+        font-size: 1rem;
+        font-weight: 600;
+        cursor: pointer;
+        box-shadow: 0 4px 12px rgba(212, 175, 55, 0.4);
+        z-index: 1000;
+        transition: all 0.3s ease;
+        animation: slideInRight 0.5s ease;
+    `;
+
+    installBtn.addEventListener('click', async () => {
+        if (!deferredPrompt) {
+            return;
+        }
+
+        // 설치 프롬프트 표시
+        deferredPrompt.prompt();
+
+        // 사용자 선택 대기
+        const { outcome } = await deferredPrompt.userChoice;
+        console.log(`[PWA] 사용자 선택: ${outcome}`);
+
+        if (outcome === 'accepted') {
+            console.log('[PWA] 사용자가 설치를 수락했습니다');
+        } else {
+            console.log('[PWA] 사용자가 설치를 거부했습니다');
+        }
+
+        deferredPrompt = null;
+        hideInstallButton();
+    });
+
+    installBtn.addEventListener('mouseenter', () => {
+        installBtn.style.transform = 'scale(1.05)';
+        installBtn.style.boxShadow = '0 6px 16px rgba(212, 175, 55, 0.5)';
+    });
+
+    installBtn.addEventListener('mouseleave', () => {
+        installBtn.style.transform = 'scale(1)';
+        installBtn.style.boxShadow = '0 4px 12px rgba(212, 175, 55, 0.4)';
+    });
+
+    document.body.appendChild(installBtn);
+
+    // 5초 후 반짝이는 애니메이션
+    setTimeout(() => {
+        installBtn.style.animation = 'pulse 2s infinite';
+    }, 5000);
+}
+
+/**
+ * PWA 설치 버튼 숨기기
+ */
+function hideInstallButton() {
+    const installBtn = document.getElementById('pwaInstallButton');
+    if (installBtn) {
+        installBtn.style.animation = 'slideOutRight 0.5s ease';
+        setTimeout(() => installBtn.remove(), 500);
+    }
+}
+
+// CSS 애니메이션 추가
+const style = document.createElement('style');
+style.textContent = `
+    @keyframes slideInRight {
+        from {
+            transform: translateX(100%);
+            opacity: 0;
+        }
+        to {
+            transform: translateX(0);
+            opacity: 1;
+        }
+    }
+
+    @keyframes slideOutRight {
+        from {
+            transform: translateX(0);
+            opacity: 1;
+        }
+        to {
+            transform: translateX(100%);
+            opacity: 0;
+        }
+    }
+
+    @keyframes pulse {
+        0%, 100% {
+            transform: scale(1);
+        }
+        50% {
+            transform: scale(1.05);
+        }
+    }
+`;
+document.head.appendChild(style);
